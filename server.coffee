@@ -6,19 +6,20 @@ tty=require 'tty'
 url=require 'url'
 path=require 'path'
 util=require 'util'
+fs=require 'fs'
 
 request_handler=require 'request_handler'
 
-PORT=1337
+conf=JSON.parse fs.readFileSync './server-conf.json','utf8'
 
 request_handler.set_default 'static'
 request_handler.get('static').forward '/','workspace.html'
 
 server=http.createServer (req,res) ->
   request_handler.handle req,res
-server.listen PORT
+server.listen conf.port
 
-console.log 'Started listening on 0.0.0.0:'+PORT
+console.log 'Started listening on 0.0.0.0:'+conf.port
 console.log 'In '+process.cwd()
 
 if tty.isatty process.stdin
