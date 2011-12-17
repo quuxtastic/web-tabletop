@@ -10,16 +10,13 @@ fs=require 'fs'
 
 request_handler=require 'request_handler'
 
-conf=JSON.parse fs.readFileSync './server-conf.json','utf8'
+global.conf=JSON.parse fs.readFileSync './server-conf.json','utf8'
+global.server=http.createServer request_handler.handle
 
-request_handler.set_default 'static'
-request_handler.get('static').forward '/','workspace.html'
+request_handler.init()
+global.server.listen global.conf.listen_port,global.conf.listen_addr
 
-server=http.createServer (req,res) ->
-  request_handler.handle req,res
-server.listen conf.port
-
-console.log 'Started listening on 0.0.0.0:'+conf.port
+console.log 'Started listening on 0.0.0.0:'+global.conf.port
 console.log 'In '+process.cwd()
 
 if tty.isatty process.stdin
