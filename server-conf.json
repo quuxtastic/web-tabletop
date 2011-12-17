@@ -2,13 +2,24 @@
   "listen_addr":"localhost",
   "listen_port":1337,
 
-  "default_request":"static",
+  "grab_tty":true,
 
   "modules":{
-    "static":{
+    "request_handler":{
+      "requests":{
+        "default":"static_file_req",
+
+        "/script":"client_script_req"
+      }
+    },
+
+    "static_file_req":{
       "forwards":{
         "/":"workspace.html"
       }
+    },
+
+    "client_script_req":{
     }
   }
 }
