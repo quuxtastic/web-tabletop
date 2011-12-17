@@ -8,3 +8,6 @@ Requires
 
 You can run it with:
   $ coffee server.coffee
+
+Configuration settings can be found in server-conf.json
+
