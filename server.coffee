@@ -1,4 +1,3 @@
-# :mode=coffeescript:indentSize=2:noTabs=true:tabSize=2:
 # main server
 
 http=require 'http'

@@ -15,7 +15,7 @@
 
     "static_file_req":{
       "forwards":{
-        "/":"workspace.html"
+        "/":"index.html"
       }
     },
 
