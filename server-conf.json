@@ -9,7 +9,7 @@
       "requests":{
         "default":"static_file_req",
 
-        "/script":"client_script_req"
+        "/module":"client_script_req"
       }
     },
 
