@@ -6,10 +6,12 @@
 
   "modules":{
     "request_handler":{
+      "default_request":"static_file_req",
       "requests":{
-        "default":"static_file_req",
+        "/module":"client_script_req",
 
-        "/module":"client_script_req"
+        "/login":"auth",
+        "/logout":"auth"
       }
     },
 
@@ -20,6 +22,15 @@
     },
 
     "client_script_req":{
+    }
+
+    "auth":{
+      "users":{
+        "GM":{
+          "admin":true,
+          "password":"password"
+        }
+      }
     }
   }
 }
