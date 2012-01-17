@@ -23,7 +23,7 @@
     },
 
     "client_script_req":{
-      "client_modules":[]
+      "client_modules":["test","load_test_1"]
     },
 
     "auth":{

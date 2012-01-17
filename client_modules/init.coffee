@@ -7,6 +7,7 @@ window.on_app_post_init=(callback) ->
 $ ->
   $.getJSON 'api/modlist',(modules) ->
     require modules...,->
+      console.log('require(api/modlist) finished')
       for callback in app_post_init_callbacks
         callback()
 
