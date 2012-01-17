@@ -12,7 +12,7 @@ load_module=(name,callback) ->
     loaded_modules[name]=
       loaded:false
       callbacks:[callback]
-    $.getScript 'module?name='+name,->
+    $.getScript 'api/module?name='+name,->
       loaded_modules[name].loaded=true
       for callback in loaded_modules[name].callbacks
         callback()
