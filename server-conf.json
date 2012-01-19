@@ -8,11 +8,11 @@
     "request_handler":{
       "default_request":"static_file_req",
       "requests":{
-        "/api/module":"client_script_req?handle_module",
-        "/api/modlist":"client_script_req?handle_mod_list",
+        "/api/module/(.*)":"client_script_req:handle_module",
+        "/api/modlist":"client_script_req:handle_mod_list",
 
-        "/api/login":"auth?handle_login",
-        "/api/logout":"auth?handle_logout"
+        "/api/login":"auth:handle_login",
+        "/api/logout":"auth:handle_logout"
       }
     },
 
