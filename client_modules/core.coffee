@@ -4,18 +4,6 @@
 
 READY_CHECK_DELAY=1000
 
-window.mixin=(src,target,force) ->
-  for prop of src
-    if force or not target[prop]?
-      target[prop]=src[prop]
-
-  return target
-
-window.is_func=(thing) ->
-  Object.prototype.toString.call(thing) == '[object Function]';
-window.is_array=(thing) ->
-  Object.prototype.toString.call(thing) == '[object Array]';
-
 load_script_tracker={}
 load_script=(name,callback) ->
   # only load this script if we haven't already started
@@ -63,7 +51,7 @@ window.define=(name,depends...,def_body) ->
   window.require depends...,(depend_objs...) ->
     exports={}
     module=def_body exports,depend_objs...
-    register_module name,mixin exports,(module ? {})
+    register_module name,exports
 
 window.require=(depends...,def_body) ->
   for depend in depends
@@ -78,7 +66,7 @@ window.require=(depends...,def_body) ->
   iid=setInterval ready_interval,READY_CHECK_DELAY
 
 # startup initialization
-$.getJSON 'api/modlist',(modules) ->
+$.getJSON 'api/client_init',(modules) ->
   require modules...,->
     # allow jquery to fire DOM events now
     $.ready true

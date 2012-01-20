@@ -8,8 +8,8 @@
     "request_handler":{
       "default_request":"static_file_req",
       "requests":{
-        "/api/module/(\\w+)":"client_script_req:handle_module",
-        "/api/modlist":"client_script_req:handle_mod_list",
+        "/api/module/(\\w+)":"client_module:handle_module",
+        "/api/client_init":"client_module:handle_mod_init",
 
         "/api/login":"auth:handle_login",
         "/api/logout":"auth:handle_logout"
@@ -22,8 +22,8 @@
       }
     },
 
-    "client_script_req":{
-      "client_modules":["test","load_test_1"]
+    "client_module":{
+      "init":["test","load_test_1"]
     },
 
     "auth":{
