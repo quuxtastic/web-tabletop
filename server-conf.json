@@ -23,7 +23,7 @@
     },
 
     "client_module":{
-      "init":["test","load_test_1"]
+      "init":[]
     },
 
     "auth":{
