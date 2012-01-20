@@ -50,7 +50,7 @@ are_depends_ready=(depends) ->
 window.define=(name,depends...,def_body) ->
   window.require depends...,(depend_objs...) ->
     exports={}
-    module=def_body exports,depend_objs...
+    def_body exports,depend_objs...
     register_module name,exports
 
 window.require=(depends...,def_body) ->
@@ -69,5 +69,6 @@ window.require=(depends...,def_body) ->
 $.getJSON 'api/client_init',(modules) ->
   require modules...,->
     # allow jquery to fire DOM events now
+    console.log 'Starting gui...'
     $.ready true
 
