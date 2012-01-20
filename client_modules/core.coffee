@@ -2,8 +2,7 @@
 # must be loaded manually, because it contains the implementation of require()
 # and define()
 
-READY_CHECK_DELAY=100
-LATEST_VERSION='latest'
+READY_CHECK_DELAY=1000
 
 window.mixin=(src,target,force) ->
   for prop of src
@@ -18,77 +17,61 @@ window.is_array=(thing) ->
   Object.prototype.toString.call(thing) == '[object Array]';
 
 load_script_tracker={}
-load_script=(name,version,callback) ->
+load_script=(name,callback) ->
   # only load this script if we haven't already started
   if load_script_tracker[name]?
-    if load_script_tracker[name][version]?
-      return
-    else
-      load_script_tracker[name]={}
-  else
+    return
 
-  return if load_script_tracker[name]?[version]?
-  load_script_tracker[name][version]=true
+  load_script_tracker[name]=true
 
   tag=document.createElement 'script'
   tag.type='text/javascript'
   tag.charset='utf-8'
   tag.async=true
-  tag.src='api/module/'+name+'/'+version
+  tag.src='api/module/'+name
 
   onload=(evt) ->
     if evt.type=='load'
       evt.srcElement.removeEventListener 'load',onload,false
       console.log 'Loaded script '+tag.src
-      callback name,version
-  tag.attachEvent 'load',onload,false
+      callback?(name,version)
+  tag.addEventListener 'load',onload,false
 
   # go!
   document.getElementsByTagName('head')[0].appendChild tag
 
 modules={}
-find_module=(name,version) ->
-  return null unless modules[name]?
-  version=version ? LATEST_VERSION
-  return modules[name][version]?
+find_module=(name) -> return modules[name] ? null
 
-register_module=(name,version,module) ->
-  modules[name][version]=module
-  console.log 'Loaded module '+name+'-'+version
+register_module=(name,module) ->
+  modules[name]=module
+  console.log 'Loaded module '+name
 
-module_ready_check=(depends) ->
+are_depends_ready=(depends) ->
   depend_objs=[]
   ready=true
   for depend in depends
-    module=null
-    if is_array depend
-      module=find_module depend...
-    else
-      module=find_module depend
-
-    if not module? then ready=false else depend_objs.append module
+    module=find_module depend
+    if not module? then ready=false else depend_objs.push module
 
   return [ready,depend_objs]
 
 # each dependency can either be the string name of the module or an array
 # with the module name and a desired version
 
-window.define=(name,version,depends...,def_body) ->
-  window.require depends...,(depend_objs)->
+window.define=(name,depends...,def_body) ->
+  window.require depends...,(depend_objs...) ->
     exports={}
-    module=(def_body exports,depends_objs...)()
-    register_module name,version,mixin exports,module
+    module=def_body exports,depend_objs...
+    register_module name,mixin exports,(module ? {})
 
 window.require=(depends...,def_body) ->
   for depend in depends
-    if is_array depend
-      load_script depend...
-    else
-      load_script depend,LATEST_VERSION
+    load_script depend
 
   iid=null
   ready_interval= ->
-    [ready,depend_objs]=module_ready_check depends
+    [ready,depend_objs]=are_depends_ready depends
     if ready
       clearInterval iid
       def_body?(depend_objs...)
@@ -98,5 +81,5 @@ window.require=(depends...,def_body) ->
 $.getJSON 'api/modlist',(modules) ->
   require modules...,->
     # allow jquery to fire DOM events now
-    #$.ready true
+    $.ready true
 
