@@ -4,7 +4,7 @@ define 'ui',(exports) ->
   get_dialog_paths=(name) ->
     return ['/dlg/'+name+'.json','/dlg/'+name+'.html']
 
-  class Window
+  class Dialog
     constructor: (dlg_root,modal=false,buttons={},pos='center',move=true,resize=true) ->
       @_dlg=dlg_root.dialog
         autoOpen:false
@@ -45,12 +45,15 @@ define 'ui',(exports) ->
         buttons[display]= -> handler $(this).data('parent'),cmd
 
       dlg_dom=$('<div title="'+dlg_info.title+'"></div>')
-        .appendTo('#staging')
         .load html, ->
-          callback?(new Window dlg_dom,modal,buttons)
+          callback?(new Dialog dlg_dom,modal,buttons)
 
   exports.show_dialog=(dlg,modal,handler,callback) ->
     exports.create_dialog dlg,modal,handler,(w) ->
       w.open()
       callback?(w)
+
+  class Canvas
+    constructor: (title,x,y,w,h) ->
+      @_canvas=$('<canvas></canvas>').appendTo '#root'
 
