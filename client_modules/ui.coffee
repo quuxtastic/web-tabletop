@@ -1,43 +1,56 @@
 # browser ui framework
 
 define 'ui',(exports) ->
+  get_dialog_paths=(name) ->
+    return ['/dlg/'+name+'.json','/dlg/'+name+'.html']
+
   class Window
-    constructor: (dlg_root,title,modal,buttons,pos,move,resize) ->
-      @dlg=dlg_root.dialog
+    constructor: (dlg_root,modal=false,buttons={},pos='center',move=true,resize=true) ->
+      @_dlg=dlg_root.dialog
         autoOpen:false
-        draggable:move?true
-        resizable:resize?true
-        title:title?''
-        position:pos?'center'
-        modal:modal?false
-        buttons:buttons?{}
+        draggable:move
+        resizable:resize
+        position:pos
+        modal:modal
+        buttons:buttons
+      @_dlg.data 'parent',this
 
     open: ->
-      @dlg.dialog 'open'
+      @_dlg.dialog 'open'
 
     close: ->
-      @dlg.dialog 'close'
+      @_dlg.dialog 'close'
 
     show: ->
-      @dlg.dialog 'show'
+      @_dlg.dialog 'show'
 
     hide: ->
-      @dlg.dialog 'hide'
+      @_dlg.dialog 'hide'
 
-    set_elem: (selector,value) ->
-      @dlg.find(selector).val value
+    set_status: (value) ->
+      if value?
+        @_dlg.find('span[name="status-text"]').html value
+        @_dlg.find('div.ui-state-error').show()
+      else
+        @_dlg.find('div.ui-state-error').hide()
 
     set_title: (title) ->
-      @dlg.dialog 'option','title',title
+      @_dlg.dialog 'option','title',title
 
-  exports.create_dialog=(dlg,modal,callback) ->
-    buttons={}
-    for cmd of dlg.commands
-      buttons[cmd.display]= -> callback cmd
-    return new Window dlg.dom,dlg.title,modal,buttons
+  exports.create_dialog=(dlg_name,modal,handler,callback) ->
+    [json,html]=get_dialog_paths dlg_name
+    $.getJSON json,(dlg_info) ->
+      buttons={}
+      for cmd,display of dlg_info.commands
+        buttons[display]= -> handler $(this).data('parent'),cmd
 
-  exports.show_dialog=(dlg,modal,callback) ->
-    w=exports.create_dialog(dlg,modal,callback)
-    w.open()
-    return w
+      dlg_dom=$('<div title="'+dlg_info.title+'"></div>')
+        .appendTo('#staging')
+        .load html, ->
+          callback?(new Window dlg_dom,modal,buttons)
+
+  exports.show_dialog=(dlg,modal,handler,callback) ->
+    exports.create_dialog dlg,modal,handler,(w) ->
+      w.open()
+      callback?(w)
 

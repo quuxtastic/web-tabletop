@@ -23,7 +23,7 @@
     },
 
     "client_module":{
-      "init":[]
+      "init":["auth"]
     },
 
     "auth":{
