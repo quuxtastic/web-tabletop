@@ -45,8 +45,8 @@ define 'ui',(exports) ->
         buttons[display]= -> handler $(this).data('parent'),cmd
 
       dlg_dom=$('<div title="'+dlg_info.title+'"></div>')
-        .load html, ->
-          callback?(new Dialog dlg_dom,modal,buttons)
+      dlg_dom.load html, ->
+        callback?(new Dialog dlg_dom,modal,buttons)
 
   exports.show_dialog=(dlg,modal,handler,callback) ->
     exports.create_dialog dlg,modal,handler,(w) ->
