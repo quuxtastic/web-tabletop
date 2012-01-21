@@ -2,7 +2,7 @@
 # must be loaded manually, because it contains the implementation of require()
 # and define()
 
-READY_CHECK_DELAY=1000
+READY_CHECK_DELAY=100
 
 load_script_tracker={}
 load_script=(name,callback) ->
