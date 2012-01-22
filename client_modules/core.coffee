@@ -44,9 +44,6 @@ are_depends_ready=(depends) ->
 
   return [ready,depend_objs]
 
-# each dependency can either be the string name of the module or an array
-# with the module name and a desired version
-
 window.define=(name,depends...,def_body) ->
   window.require depends...,(depend_objs...) ->
     exports={}
@@ -70,5 +67,8 @@ $.getJSON 'api/client_init',(modules) ->
   require modules...,->
     # allow jquery to fire DOM events now
     console.log 'Starting gui...'
-    $.ready true
+    if $.holdReady?
+      $.holdReady false
+    else
+      $.ready true
 
