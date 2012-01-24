@@ -37,6 +37,26 @@ define 'ui',(exports) ->
     set_title: (title) ->
       @_dlg.dialog 'option','title',title
 
+  class Canvas
+    constructor: (dlg_obj) ->
+      @_dlg=dlg_obj
+      @_canvas=$('<canvas></canvas>').appendTo @_dlg
+
+    open: ->
+      @_dlg.open()
+
+    close: ->
+      @_dlg.close()
+
+    show: ->
+      @_dlg.show()
+
+    hide: ->
+      @_dlg.hide()
+
+    set_title: (title) ->
+      @_dlg.set_title title
+
   exports.create_dialog=(dlg_name,modal,handler,callback) ->
     [json,html]=get_dialog_paths dlg_name
     $.getJSON json,(dlg_info) ->
@@ -53,7 +73,7 @@ define 'ui',(exports) ->
       w.open()
       callback?(w)
 
-  class Canvas
-    constructor: (title,w,h,pos='center') ->
-      @_canvas=$('<canvas></canvas>').appendTo '#root'
+  exports.create_canvas=(title,w,h) ->
+    return new Canvas new Dialog $('<div title="'+title+'"></div>')
+      .width(w).height(h)
 
