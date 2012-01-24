@@ -54,6 +54,6 @@ define 'ui',(exports) ->
       callback?(w)
 
   class Canvas
-    constructor: (title,x,y,w,h) ->
+    constructor: (title,w,h,pos='center') ->
       @_canvas=$('<canvas></canvas>').appendTo '#root'
 
