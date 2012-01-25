@@ -1,82 +1,87 @@
 # browser ui framework
 
 define 'ui',(exports) ->
-  get_dialog_paths=(name) ->
-    return ['/dlg/'+name+'.json','/dlg/'+name+'.html']
+  class Widget
+    constructor: (@_root) ->
 
-  class Dialog
-    constructor: (dlg_root,modal=false,buttons={},pos='center',move=true,resize=true) ->
-      @_dlg=dlg_root.dialog
+    get: (name) -> return @_root.find('[name="'+name+'"]').val()
+    set: (name,text) -> @_root.find('[name="'+name+'"]').val text
+
+    get_any: (selector) -> return @_root.find selector
+    set_any: (selector,src) -> return @_root.find(selector).html src
+
+    show: -> @_root.show()
+    hide: -> @_root.hide()
+
+  class Dialog extends Widget
+    constructor: (src,title,modal,commands) ->
+      cmd_wrappers={}
+      for disp,func of commands
+        cmd_wrappers[disp]= => func this,disp
+
+      super $('<div title="'+title+'"></div>').html src
+      @_root.dialog
         autoOpen:false
-        draggable:move
-        resizable:resize
-        position:pos
+        resizable:false
         modal:modal
-        buttons:buttons
-      @_dlg.data 'parent',this
+        buttons:cmd_wrappers
 
-    open: ->
-      @_dlg.dialog 'open'
+    open: -> @_root.dialog 'open'
+    close: -> @_root.dialog 'close'
+    show: -> @_root.dialog 'show'
+    hide: -> @_root.dialog 'hide'
 
-    close: ->
-      @_dlg.dialog 'close'
+    set_title: (title) -> @_root.dialog 'option','title',title
 
-    show: ->
-      @_dlg.dialog 'show'
+  class FeedbackDialog extends Dialog
+    constructor: (args...) -> super args...
 
-    hide: ->
-      @_dlg.dialog 'hide'
+    set_error: (value) ->
+      @set_any 'span[name="status-text"]',value
+      @get_any('div.ui-state-error').show()
+    clear_error: ->
+      @get_any('div.ui-state-error').hide()
 
-    set_status: (value) ->
-      if value?
-        @_dlg.find('span[name="status-text"]').html value
-        @_dlg.find('div.ui-state-error').show()
-      else
-        @_dlg.find('div.ui-state-error').hide()
+  ALERT_DIALOG="""
+    <div class="ui-widget">
+      <div class="ui-state-info ui-corner-all">
+        <p>
+          <span class="ui-icon ui-icon-info"
+            style="float:left;margin-right:.3em;"></span>
+          <span name="dlg-text"></span>
+        </p>
+      </div>
+    </div>
+  """
 
-    set_title: (title) ->
-      @_dlg.dialog 'option','title',title
+  exports.dialog=(source,title,modal,auto_open,handlers) ->
+    d=new Dialog source,title,modal,handlers
+    d.open() if auto_open
+    return d
 
-    get_field: (field) ->
-      return @_dlg.find('[name="'+field+'"]').val()
+  exports.feedback_dialog=(source,title,modal,auto_open,handlers) ->
+    d=new FeedbackDialog source,title,modal,handlers
+    d.open() if auto_open
+    return d
 
-  class Canvas
-    constructor: (dlg_obj) ->
-      @_dlg=dlg_obj
-      @_canvas=$('<canvas></canvas>').appendTo @_dlg
+  exports.alert=(text,title='Alert',on_close) ->
+    d=exports.dialog ALERT_DIALOG,title,true,false,
+      "OK": (me,disp) ->
+        me.close()
+        on_close?(me,disp)
+    d.set 'dlg-text',text
+    d.open()
+    return d
 
-    open: ->
-      @_dlg.open()
-
-    close: ->
-      @_dlg.close()
-
-    show: ->
-      @_dlg.show()
-
-    hide: ->
-      @_dlg.hide()
-
-    set_title: (title) ->
-      @_dlg.set_title title
-
-  exports.create_dialog=(dlg_name,modal,handler,callback) ->
-    [json,html]=get_dialog_paths dlg_name
-    $.getJSON json,(dlg_info) ->
-      buttons={}
-      for cmd,display of dlg_info.commands
-        buttons[display]= -> handler $(this).data('parent'),cmd
-
-      dlg_dom=$('<div title="'+dlg_info.title+'"></div>')
-      dlg_dom.load html, ->
-        callback?(new Dialog dlg_dom,modal,buttons)
-
-  exports.show_dialog=(dlg,modal,handler,callback) ->
-    exports.create_dialog dlg,modal,handler,(w) ->
-      w.open()
-      callback?(w)
-
-  exports.create_canvas=(title,w,h) ->
-    return new Canvas new Dialog $('<div title="'+title+'"></div>')
-      .width(w).height(h)
+  exports.confirm=(text,title='Confirmation',handler) ->
+    d=exports.dialog ALERT_DIALOG,title,true,false,
+      "OK": (me,disp) ->
+        me.close()
+        handler true,me,disp
+      "Cancel": (me,disp) ->
+        me.close()
+        handler false,me,disp
+    d.set 'dlg-text',text
+    d.open()
+    return d
 

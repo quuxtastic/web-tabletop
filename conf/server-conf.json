@@ -14,7 +14,7 @@
       "default_request":"static",
       "requests":{
         "/api/module/(\\w+)":"client_module:handle_module",
-        "/api/client_init":"client_module:handle_mod_init",
+        "/api/init_modules":"client_module:handle_mod_init",
 
         "/api/login":"auth:handle_login",
         "/api/logout":"auth:handle_logout"
@@ -31,7 +31,8 @@
     "client_module":{
       "module_root":"./client",
       "output_path":"./var/bin",
-      "init":["auth"]
+
+      "init":["auth","launch"]
     },
 
     "auth":{

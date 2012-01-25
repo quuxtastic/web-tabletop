@@ -63,12 +63,17 @@ window.require=(depends...,def_body) ->
   iid=setInterval ready_interval,READY_CHECK_DELAY
 
 # startup initialization
-$.getJSON 'api/client_init',(modules) ->
-  require modules...,->
-    # allow jquery to fire DOM events now
-    console.log 'Starting gui...'
-    if $.holdReady?
-      $.holdReady false
-    else
-      $.ready true
+$.ajax
+  url:'api/init_modules'
+  dataType:'json'
+  success:(modules) ->
+    require modules..., ->
+      console.log 'Starting GUI...'
+      if $.holdReady?
+        $.holdReady false
+      else
+        $.ready true
+  error:(xhr,text_status,err) ->
+    console.error 'Failed to get module init list:'
+    console.error '\t'+text_status
 
