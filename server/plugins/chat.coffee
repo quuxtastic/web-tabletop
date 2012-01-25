@@ -2,7 +2,7 @@
 
 socket_io=require 'socket.io'
 
-conf=require('module_conf').conf.modules.chat
+conf=require('module_conf').conf.plugins.chat
 
 clients={}
 

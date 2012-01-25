@@ -19,8 +19,10 @@ global.on_server_post_init=(callback) ->
   server_post_init_callbacks.push callback
 
 # initialize all modules
-for modname,modconf of conf.modules
-  obj=require modname
+for modname,modconf of conf.plugins
+  p=path.join process.cwd(),conf.plugin_root,modname
+  obj=require path.join process.cwd(),conf.plugin_root,modname
+  log.log 'Loaded plugin '+modname
 
 # start our server
 server=http.createServer (req,res) ->
@@ -32,7 +34,7 @@ server.listen conf.listen_port,conf.listen_addr
 for f in server_post_init_callbacks
   f server
 
-log.log 'Started on '+conf.listen_addr+':'+conf.listen_port+' in '+process.cwd()
+log.log 'Listening on '+conf.listen_addr+':'+conf.listen_port+' in '+process.cwd()
 process.on 'exit', ->
   log.log 'Stopped'
   log.close()

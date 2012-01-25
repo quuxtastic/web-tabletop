@@ -8,10 +8,11 @@ proc=require 'child_process'
 response=require 'response_helpers'
 log=require 'log'
 
-conf=require('module_conf').conf.modules.client_module
+conf=require('module_conf').conf.plugins.client_module
 
-SRC_PATH=conf.src_path ? path.join process.cwd(),'./client'
-OUT_PATH=conf.out_path ? path.join process.cwd(),'./var/bin'
+SRC_PATH=path.join process.cwd(),conf.module_root
+OUT_PATH=path.join process.cwd(),conf.output_path
+COFFEE_CMD=conf.coffee_shell? 'coffee'
 
 exports.handle_mod_init=(req,res) ->
   response.json req,res,conf.init
@@ -29,7 +30,7 @@ exports.handle_module=(req,res,modname) ->
       if err or src_stats.mtime>comp_stats.mtime
         #console.info 'Recompiling '+src_path
         log.log 'Recompiling '+src_path
-        cmd_str='coffee -co '+OUT_PATH+' '+src_path
+        cmd_str=COFFEE_CMD+' -co '+OUT_PATH+' '+src_path
         proc.exec cmd_str,(err,stdout,stderr) ->
           if err
             response.error req,res,[err,stdout,stderr]

@@ -2,7 +2,7 @@
 
 response=require 'response_helpers'
 
-conf=require('module_conf').conf.modules.auth
+conf=require('module_conf').conf.plugins.auth
 
 users={}
 

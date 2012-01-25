@@ -5,9 +5,11 @@
   "grab_tty":true,
   "log_path":"./var/log",
 
-  "modules":{
+  "plugin_root":"./server/plugins",
+  "plugins":{
     "request_handler":{
-      "default_request":"static_file_req",
+      "handler_root":"./server/plugins",
+      "default_request":"static",
       "requests":{
         "/api/module/(\\w+)":"client_module:handle_module",
         "/api/client_init":"client_module:handle_mod_init",
@@ -17,13 +19,16 @@
       }
     },
 
-    "static_file_req":{
+    "static":{
+      "content_root":"./static_content",
       "forwards":{
         "/":"index.html"
       }
     },
 
     "client_module":{
+      "module_root":"./client",
+      "output_path":"./var/bin",
       "init":["auth"]
     },
 

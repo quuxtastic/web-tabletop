@@ -7,9 +7,9 @@ url=require 'url'
 response=require 'response_helpers'
 mime=require 'mime_types'
 
-conf=require('module_conf').conf.modules.static_file_req
+conf=require('module_conf').conf.plugins.static
 
-STATIC_FILE_ROOT=conf.root ? path.join process.cwd(),'./static'
+STATIC_FILE_ROOT=path.join process.cwd(),conf.content_root
 
 forwards={}
 

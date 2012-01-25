@@ -1,11 +1,12 @@
 # request handler registry
 
 url=require 'url'
+path=require 'path'
 
 response=require 'response_helpers'
 log=require 'log'
 
-conf=require('module_conf').conf.modules.request_handler
+conf=require('module_conf').conf.plugins.request_handler
 
 handlers={}
 
@@ -34,7 +35,7 @@ parse_handler_str=(str) ->
 
 get_handler_method=(handler_str) ->
   info=parse_handler_str handler_str
-  obj=require info.module
+  obj=require path.join process.cwd(),conf.handler_root,info.module
   if not obj[info.func]?
     throw new Error('Request handler '+modname+' has no '+funcname+' method')
 
