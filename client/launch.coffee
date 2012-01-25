@@ -21,13 +21,14 @@ define 'launch','ui','auth',(exports,ui,auth) ->
 
   LOAD_TIMEOUT=5000
 
-  auth.on_login ->
-    ui.feedback_dialog DLG,'Load Module',false,true,
-      "Load": (me) ->
-        me.set_error 'Loading '+me.get('modname')+'...'
-        on_timeout= -> me.set_error 'Timed out :('
-        errtimeout=setTimeout on_timeout,LOAD_TIMEOUT
-        require me.get('modname'), ->
-          clearTimeout errtimeout
-          me.set_error 'Success!'
+  $ ->
+    auth.login ->
+      ui.feedback_dialog DLG,'Load Module',false,true,
+        "Load": (me) ->
+          me.set_error 'Loading '+me.get('modname')+'...'
+          on_timeout= -> me.set_error 'Timed out :('
+          errtimeout=setTimeout on_timeout,LOAD_TIMEOUT
+          require me.get('modname'), ->
+            clearTimeout errtimeout
+            me.set_error 'Success!'
 

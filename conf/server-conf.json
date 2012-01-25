@@ -32,7 +32,7 @@
       "module_root":"./client",
       "output_path":"./var/bin",
 
-      "init":["auth","launch"]
+      "init":["launch"]
     },
 
     "auth":{
