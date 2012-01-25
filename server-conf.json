@@ -3,6 +3,7 @@
   "listen_port":1337,
 
   "grab_tty":true,
+  "log_path":"./var/log",
 
   "modules":{
     "request_handler":{

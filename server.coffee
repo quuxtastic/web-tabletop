@@ -8,6 +8,7 @@ util=require 'util'
 fs=require 'fs'
 
 conf=require('module_conf').load('./server-conf.json')
+log=require 'log'
 
 # add hook to get at server requests and post-startup initialization
 server_request_callbacks=[]
@@ -31,8 +32,9 @@ server.listen conf.listen_port,conf.listen_addr
 for f in server_post_init_callbacks
   f server
 
-console.log 'Started listening on '+conf.listen_addr+':'+conf.listen_port
-console.log 'In '+process.cwd()
+log.log 'Started on '+conf.listen_addr+':'+conf.listen_port+' in '+process.cwd()
+process.on 'exit', ->
+  log.log 'Stopped'
 
 # terminate on Ctrl-C if user wants
 if tty.isatty process.stdin and conf.grab_tty
@@ -41,5 +43,5 @@ if tty.isatty process.stdin and conf.grab_tty
   tty.setRawMode true
   process.stdin.on 'keypress',(c,k) ->
     if k and k.ctrl and k.name=='c'
-      process.exit()
+      process.exit(0)
 
