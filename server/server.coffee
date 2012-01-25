@@ -7,7 +7,11 @@ path=require 'path'
 util=require 'util'
 fs=require 'fs'
 
-conf=require('module_conf').load('./server-conf.json')
+conf_path=path.join process.cwd(),'./conf/server-conf.json'
+if process.argv[2]?
+  conf_path=process.argv[2]
+
+conf=require('module_conf').load(conf_path)
 log=require 'log'
 
 # add hook to get at server requests and post-startup initialization

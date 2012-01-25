@@ -2,6 +2,8 @@
   "listen_addr":"localhost",
   "listen_port":1337,
 
+  "work_path":"./var",
+
   "grab_tty":true,
   "log_path":"./var/log",
 
