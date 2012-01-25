@@ -67,7 +67,8 @@ for pathname,modname of conf.requests
   exports.add pathname,modname
 
 global.on_server_request (req,res) ->
-  log.log req.method+' '+req.url+' from '+req.socket.remoteAddress
+  if conf.verbose
+    log.log req.method+' '+req.url+' from '+req.socket.remoteAddress
   parsed_url=url.parse req.url,true
   for h of handlers
     match=handlers[h].regex.exec parsed_url.pathname

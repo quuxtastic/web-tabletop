@@ -28,7 +28,6 @@ exports.handle_module=(req,res,modname) ->
 
     fs.stat compiled_path,(err,comp_stats) ->
       if err or src_stats.mtime>comp_stats.mtime
-        #console.info 'Recompiling '+src_path
         log.log 'Recompiling '+src_path
         cmd_str=COFFEE_CMD+' -co '+OUT_PATH+' '+src_path
         proc.exec cmd_str,(err,stdout,stderr) ->
