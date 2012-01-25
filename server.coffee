@@ -35,6 +35,7 @@ for f in server_post_init_callbacks
 log.log 'Started on '+conf.listen_addr+':'+conf.listen_port+' in '+process.cwd()
 process.on 'exit', ->
   log.log 'Stopped'
+  log.close()
 
 # terminate on Ctrl-C if user wants
 if tty.isatty process.stdin and conf.grab_tty
