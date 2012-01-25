@@ -37,6 +37,9 @@ define 'ui',(exports) ->
     set_title: (title) ->
       @_dlg.dialog 'option','title',title
 
+    get_field: (field) ->
+      return @_dlg.find('[name="'+field+'"]').val()
+
   class Canvas
     constructor: (dlg_obj) ->
       @_dlg=dlg_obj

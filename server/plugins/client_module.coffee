@@ -12,7 +12,7 @@ conf=require('module_conf').conf.plugins.client_module
 
 SRC_PATH=path.join process.cwd(),conf.module_root
 OUT_PATH=path.join process.cwd(),conf.output_path
-COFFEE_CMD=conf.coffee_shell? 'coffee'
+COFFEE_CMD=conf.coffee_shell ? 'coffee'
 
 exports.handle_mod_init=(req,res) ->
   response.json req,res,conf.init
