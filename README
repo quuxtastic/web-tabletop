@@ -6,16 +6,16 @@ Requires
   Coffee script can be installed thru npm once node is installed with:
     $ npm install -g coffee-script
 
-You can run it with:
+You can run it with
 
   Unix: $ bin/start.sh
 
   Windows: > bin/start.bat
 
-  from the repository root folder. You can set the environment variable
-  WEB_TABLETOP_ROOT to run from any folder.
+from the repository root folder. You can set the environment variable
+WEB_TABLETOP_ROOT to run from any folder.
 
-  If the script has trouble running the coffee command, you should set the
-  COFFEE environment variable to be the absolute path to the main coffee
-  script (see npm's documentation for where it puts installed modules).
+If the script has trouble running the coffee command, you should set the
+COFFEE environment variable to be the absolute path to the main coffee
+script (see npm's documentation for where it puts installed modules).
 
