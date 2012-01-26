@@ -40,7 +40,23 @@ define 'auth','ui','store',(exports,ui,store) ->
             store.session.put 'auth.key',res[1]
             callback?(true,res[1])
           else
+            store.session.remove 'auth.key'
+            store.session.remove 'auth.user'
             callback?(false,res[1])
+    else
+      callback?(false,'No key set')
+
+  refresh_timeout_running=false
+  refresh_key_timeout= ->
+    refresh_key (success) ->
+      if success
+        setTimeout refresh_key_timeout,KEY_REFRESH_TIMEOUT
+      else
+        refresh_timeout_running=false
+  start_refresh_timeout= ->
+    if not refresh_timeout_running
+      refresh_timeout_running=true
+      setTimeout refresh_key_timeout,KEY_REFRESH_TIMEOUT
 
   login_callbacks=[]
 
@@ -57,11 +73,7 @@ define 'auth','ui','store',(exports,ui,store) ->
     login_callbacks=[]
     trying_login=false
 
-    refresh_key_timeout= ->
-      refresh_key (success) ->
-        if success
-          setTimeout refresh_key_timeout,KEY_REFRESH_TIMEOUT
-    setTimeout refresh_key_timeout,KEY_REFRESH_TIMEOUT
+    start_refresh_timeout()
 
   login_dlg=ui.feedback_dialog LOGIN_DIALOG,'User Login',true,false,
     "Log In": ->
@@ -118,6 +130,7 @@ define 'auth','ui','store',(exports,ui,store) ->
       refresh_key (success,val) ->
         if success
           callback?(store.session.get('auth.user'),store.session.get('auth.key'))
+          start_refresh_timeout()
         else
           try_login callback
     else
