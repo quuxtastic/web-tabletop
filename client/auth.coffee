@@ -1,6 +1,6 @@
 # client-side authorization UI
 
-define 'auth','ui',(exports,ui) ->
+define 'auth','ui','store',(exports,ui,store) ->
   LOGIN_DIALOG="""
     <p>
       <p style="text-align:center;">
@@ -26,47 +26,49 @@ define 'auth','ui',(exports,ui) ->
     </p>
   """
 
-  STORAGE_LOGIN_INFO='web-tabletop-storage-login-data'
-  SESSION_KEY='web-tabletop-session-key'
-  SESSION_USER='web-tabletop-session-user-name'
-
   login_callbacks=[]
+
+  trying_login=false
+
   on_login_success=(callback) ->
     login_callbacks.push callback
 
   do_login_success=(username,session_key) ->
-    window.sessionStorage.setItem SESSION_KEY,session_key
-    window.sessionStorage.setItem SESSION_USER,username
+    store.session.put 'auth.key',session_key
+    store.session.put 'auth.user',username
     for f in login_callbacks
       f username,session_key
     login_callbacks=[]
+    trying_login=false
 
   show_login= ->
     login_dlg=ui.feedback_dialog LOGIN_DIALOG,'User Login',true,true,
       "Log In": ->
         # we can't use our server.request api here because the server module
         # depends on us
+        login_info=
+          username:login_dlg.get 'username'
+          password:login_dlg.get 'password'
+        remember=login_dlg.get_any('[name="remember"]:checked').val()=='on'
         $.ajax
           url:'api/login'
           dataType:'json'
-          data:
-            username:login_dlg.get 'username'
-            password:login_dlg.get 'password'
+          data:login_info
           success:(res) ->
             if not res[0]
               login_dlg.set_error res[1]
             else
               login_dlg.close()
-              #if login_dlg.get 'remember'
-                #TODO: currently this is disabled
-                #window.localStorage.setItem STORAGE_LOGIN_INFO
-              do_login_success login_dlg.get('username'),res[1]
 
-  trying_login=false
+              if remember
+                console.log 'saved login info'
+                store.local.put 'auth.login-info',login_info
+              do_login_success login_info.username,res[1]
+
   exports.login=(callback) ->
     # do nothing if we are already logged in
-    if window.sessionStorage.getItem SESSION_KEY
-      callback?(window.sessionStorage.getItem(SESSION_USER),window.sessionStorage.getItem(SESSION_KEY))
+    if store.session.get 'auth.key'
+      callback?(store.session.get('auth.user'),store.session.get('auth.key'))
       return
 
     on_login_success callback
@@ -76,17 +78,23 @@ define 'auth','ui',(exports,ui) ->
       trying_login=true
 
       # attempt to retrieve locally-saved login info if it exists
-      k=window.localStorage.getItem STORAGE_LOGIN_INFO
-      if k?
-        params=JSON.parse k
-        serv.request 'login',JSON.parse(k),(res) ->
-          if not res[0]
-            show_login()
-          else
-            do_login_success params.username,res[1]
+      login_info=store.local.get 'auth.login-info'
+      if login_info
+        $.ajax
+          url:'api/login'
+          dataType:'json'
+          data:login_info
+          success:(res) ->
+            if not res[0]
+              # clear locally-saved login info
+              store.local.remove 'auth.login-info'
+              console.log 'cleared invalid login info'
+              show_login()
+            else
+              do_login_success login_info.username,res[1]
       else
         show_login()
 
-  exports.current_user= -> return window.sessionStorage.getItem SESSION_USER
-  exports.session_key= -> return window.sessionStorage.getItem SESSION_KEY
+  exports.current_user= -> return store.session.get 'auth.user'
+  exports.session_key= -> return store.session.get 'auth.key'
 

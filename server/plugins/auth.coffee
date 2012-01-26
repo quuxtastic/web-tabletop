@@ -59,7 +59,7 @@ exports.verify_admin=(req,res,callback) ->
 
 exports.handle_login=(req,res,query) ->
   if not query.username? or not query.password?
-    response.bad_request 'Requires username and password'
+    response.bad_request req,res,'Requires username and password'
     return
 
   if not users[query.username]?
