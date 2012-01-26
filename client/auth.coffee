@@ -11,7 +11,7 @@ define 'auth','ui','store',(exports,ui,store) ->
         <input name="password" type="password">
         <br><br>
         <label for="remember">Remember me</label>
-        <input type="checkbox" name="remember">
+        <input type="checkbox" name="remember" value="remember">
       </p>
       <div class="ui-widget">
         <div class="ui-state-error ui-corner-all"
@@ -49,7 +49,7 @@ define 'auth','ui','store',(exports,ui,store) ->
         login_info=
           username:login_dlg.get 'username'
           password:login_dlg.get 'password'
-        remember=login_dlg.get_any('[name="remember"]:checked').val()=='on'
+        remember=login_dlg.get('remember')=='on'
         $.ajax
           url:'api/login'
           dataType:'json'

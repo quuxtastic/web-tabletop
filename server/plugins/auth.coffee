@@ -1,6 +1,7 @@
 # authentication
 
 url=require 'url'
+crypto=require 'crypto'
 
 response=require 'response_helpers'
 
@@ -11,17 +12,24 @@ TIMEOUT=10000
 users={}
 keys={}
 
-make_random_string=(bits) ->
-  CHARS='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
-  s=''
-  while bits>0
-    r=Math.floor Math.random()*0x100000000
-    i=26
-    while i>0 and bits>0
-      s+=CHARS[0x3f & r>>>i]
-      i-=6
-      bits-=6
-  return s
+#make_random_string=(bits) ->
+#  CHARS='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+#  s=''
+#  while bits>0
+#    r=Math.floor Math.random()*0x100000000
+#    i=26
+#    while i>0 and bits>0
+#      s+=CHARS[0x3f & r>>>i]
+#      i-=6
+#      bits-=6
+#  return s
+
+make_session_key=(salt) ->
+  hash=crypto.createHash 'md5'
+  hash.update salt
+  hash.update ''+Date.now
+  hash.update ''+Math.random()
+  return hash.digest 'hex'
 
 exports.add_user=(name,password,admin) ->
   users[name]=
@@ -70,12 +78,12 @@ exports.handle_login=(req,res,query) ->
     response.json req,res,[false,'Invalid password']
     return
 
-  if not keys[username]? or (keys[username].timeout>Date.now())
-    keys[username]=
+  if not keys[query.username]? or (keys[query.username].timeout>Date.now())
+    keys[query.username]=
       timeout:Date.now()+TIMEOUT
-      key:make_random_string 32
+      key:make_session_key query.username
 
-  response.json req,res,[true,keys[username].key]
+  response.json req,res,[true,keys[query.username].key]
 
 exports.handle_logout=(req,res) ->
   keys[username]=null

@@ -16,8 +16,9 @@ define 'ui',(exports) ->
   class Dialog extends Widget
     constructor: (src,title,modal,commands) ->
       cmd_wrappers={}
-      for disp,func of commands
-        cmd_wrappers[disp]= => func this,disp
+      if commands?
+        for disp,func of commands
+          cmd_wrappers[disp]= => func this,disp
 
       super $('<div title="'+title+'"></div>').html src
       @_root.dialog
