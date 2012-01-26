@@ -82,8 +82,9 @@ define 'auth','ui','store',(exports,ui,store) ->
             login_dlg.close()
 
             if remember
-              console.log 'saved login info'
               store.local.put 'auth.login-info',login_info
+            else
+              store.local.remove 'auth.login-info'
             do_login_success login_info.username,res[1]
 
   show_login= -> login_dlg.open()
@@ -104,9 +105,6 @@ define 'auth','ui','store',(exports,ui,store) ->
           data:login_info
           success:(res) ->
             if not res[0]
-              # clear locally-saved login info
-              store.local.remove 'auth.login-info'
-              console.log 'cleared invalid login info'
               show_login()
             else
               do_login_success login_info.username,res[1]
