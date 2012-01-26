@@ -25,6 +25,9 @@ define 'ui',(exports) ->
         resizable:false
         modal:modal
         buttons:cmd_wrappers
+        open: ->
+          # turn off the close button
+          $('.ui-dialog-titlebar-close',$(this).parent()).hide()
 
     open: -> @_root.dialog 'open'
     close: -> @_root.dialog 'close'
