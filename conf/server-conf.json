@@ -16,8 +16,9 @@
         "/api/module/(\\w+)":"client_module:handle_module",
         "/api/init_modules":"client_module:handle_mod_init",
 
-        "/api/login":"auth:handle_login",
-        "/api/logout":"auth:handle_logout"
+        "/api/auth/login":"auth:handle_login",
+        "/api/auth/logout":"auth:handle_logout",
+        "/api/auth/ping":"auth:handle_ping"
       }
     },
 
@@ -32,7 +33,7 @@
       "module_root":"./client",
       "output_path":"./var/bin",
 
-      "init":["launch"]
+      "init":["chat"]
     },
 
     "auth":{

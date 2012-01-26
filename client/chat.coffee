@@ -46,15 +46,16 @@ define 'chat','ui','auth','store',(exports,ui,auth,store) ->
 
     logbox.scrollTop 9999999 # blarg
 
-  auth.login (user) ->
-    chat_dlg.open()
+  $ ->
+    auth.login (user) ->
+      chat_dlg.open()
 
-    user=store.session.get 'auth.user'
-    key=store.session.get 'auth.key'
-    socket=io.connect('http://localhost?auth_user='+user+'&auth_key='+key)
-      .on('chat',recv_chat_message)
-      .on 'error', ->
-        recv_chat_message
-          server:true
-          text:'Failed to connect to socket.io :('
+      user=store.session.get 'auth.user'
+      key=store.session.get 'auth.key'
+      socket=io.connect('http://localhost?auth_user='+user+'&auth_key='+key)
+        .on('chat',recv_chat_message)
+        .on 'error', ->
+          recv_chat_message
+            server:true
+            text:'Failed to connect to socket.io :('
 
