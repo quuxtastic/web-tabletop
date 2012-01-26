@@ -5,7 +5,8 @@ define 'chat','ui','auth','store',(exports,ui,auth,store) ->
     <p>
       <div name="chat-log" style="width:275px;height:150px;overflow:auto;"></div>
       <br>
-      <textarea name="msg-input" rows="3" cols="20"></textarea>
+      <textarea name="msg-input" rows="3" cols="20"
+        style="resize:none;"></textarea>
     </p>
   """
 
