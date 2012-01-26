@@ -4,30 +4,19 @@ url=require 'url'
 crypto=require 'crypto'
 
 response=require 'response_helpers'
+log=require 'log'
 
 conf=require('module_conf').conf.plugins.auth
 
-TIMEOUT=10000
+TIMEOUT=1000*60*60 # one hour
 
 users={}
 keys={}
 
-#make_random_string=(bits) ->
-#  CHARS='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
-#  s=''
-#  while bits>0
-#    r=Math.floor Math.random()*0x100000000
-#    i=26
-#    while i>0 and bits>0
-#      s+=CHARS[0x3f & r>>>i]
-#      i-=6
-#      bits-=6
-#  return s
-
 make_session_key=(salt) ->
   hash=crypto.createHash 'md5'
   hash.update salt
-  hash.update ''+Date.now
+  hash.update ''+Date.now()
   hash.update ''+Math.random()
   return hash.digest 'hex'
 
@@ -38,25 +27,25 @@ exports.add_user=(name,password,admin) ->
 
 exports.remove_user=(name) -> users[name]=null
 
+do_verify=(q) ->
+  if not q.auth_key? or not q.auth_user?
+    return [false,'Requires authentication']
+  if not keys[q.auth_user]?
+    return [false,'Not logged in']
+  if keys[q.auth_user].key!=q.auth_key
+    return [false,'Bad key']
+  if (Date.now()-keys[q.auth_user].timestamp)>TIMEOUT
+    return [false,'Session timed out']
+
+  return [true]
+
 exports.verify=(req,res,callback) ->
   q=(url.parse req.url,true).query
-  if not q.auth_key? or not q.auth_user
-    response.unauthorized req,res,'Requires authentication key'
-    return
-
-  if not keys[q.auth_user]?
-    response.unauthorized req,res,'Not logged in'
-    return
-
-  if not keys[q.auth_user].key!=q.auth_key
-    response.unauthorized req,res,'Bad authentication key'
-    return
-
-  if keys[q.auth_user].timeout>Date.now()
-    response.unauthorized req,res,'Session timed out'
-    return
-
-  callback req,res,q.auth_user
+  [success,error_text]=do_verify q
+  if success
+    callback req,res,q.auth_user
+  else
+    response.unauthorized req,res,error_text
 
 exports.verify_admin=(req,res,callback) ->
   exports.verify req,res,(req,res,username) ->
@@ -64,6 +53,23 @@ exports.verify_admin=(req,res,callback) ->
       response.forbidden req,res,'Not an admin'
     else
       callback req,res,username
+
+exports.verify_stream_handshake=(auth,callback) ->
+  [success,error_text]=do_verify auth.query
+  if success
+    callback null,true
+  else
+    callback error_text
+
+exports.verify_stream_handshake_admin=(auth,callback) ->
+  [success,error_text]=do_verify auth.query
+  if success
+    if not users[auth.query.auth_user].admin
+      callback 'Not an admin'
+     else
+       callback null,true
+  else
+    callback error_text
 
 exports.handle_login=(req,res,query) ->
   if not query.username? or not query.password?
@@ -78,10 +84,12 @@ exports.handle_login=(req,res,query) ->
     response.json req,res,[false,'Invalid password']
     return
 
-  if not keys[query.username]? or (keys[query.username].timeout>Date.now())
-    keys[query.username]=
-      timeout:Date.now()+TIMEOUT
+  if not keys[query.username]? or (Date.now()-keys[query.username].timestamp)>TIMEOUT
+    new_key=
+      timestamp:Date.now()
       key:make_session_key query.username
+    keys[query.username]=new_key
+    log.log query.username+' logged in - session '+new_key.key
 
   response.json req,res,[true,keys[query.username].key]
 

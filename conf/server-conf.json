@@ -40,9 +40,19 @@
         "GM":{
           "admin":true,
           "password":"password"
+        },
+        "test_user_1":{
+          "admin":false,
+          "password":"1234"
+        },
+        "test_user_2":{
+          "admin":false,
+          "password":"5678"
         }
       }
-    }
+    },
+
+    "chat":{}
   }
 }
 

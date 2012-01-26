@@ -1,10 +1,11 @@
 Requires
   Node.js (version >= 0.6.5)
   Coffeescript (version >= 1.1.3)
+  socket.io (version >= 0.8.7)
 
   You can download node at: http://nodejs.org/#download
-  Coffee script can be installed thru npm once node is installed with:
-    $ npm install -g coffee-script
+  You can install the npm modules with:
+    $ npm install -g coffee-script socket.io
 
 You can run it with
 

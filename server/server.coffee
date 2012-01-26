@@ -24,7 +24,6 @@ global.on_server_post_init=(callback) ->
 
 # initialize all modules
 for modname,modconf of conf.plugins
-  p=path.join process.cwd(),conf.plugin_root,modname
   obj=require path.join process.cwd(),conf.plugin_root,modname
   log.log 'Loaded plugin '+modname
 
